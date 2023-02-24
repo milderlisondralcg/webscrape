@@ -4,10 +4,7 @@
  * export.php
  * Export products data and create an Excel file
  * */
-date_default_timezone_set('America/Los_Angeles');
-
-require 'vendor/autoload.php';
-require("RedBean/rb.php");
+require_once "../inc/config.php";
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet; 
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx; 

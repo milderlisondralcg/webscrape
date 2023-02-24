@@ -19,7 +19,6 @@ if(isset($argv[1])){
 }
 
 $links_table = LINKS;
-
 print "Limit: " . $query_limit . PHP_EOL;
 // Get products
 $links = R::findAll($links_table, " WHERE status IS NULL LIMIT $query_limit");
@@ -172,6 +171,7 @@ foreach($links as $link){
 global $data;
 
 $products_table = PRODUCTS;
+
 // Update products
 foreach($data as $key=>$product){ 
 
@@ -182,7 +182,6 @@ foreach($data as $key=>$product){
        unset($product['Product Citations']);
 
        $current_product = R::getRow( "SELECT * FROM " . $products_table . " WHERE catalog_id = " . $catalog_id );
-       print_r($current_product);
 
        try{
              // $current_product = R::findOne( "SELECT * FROM " . $products_table . " WHERE catalog_id = " . $catalog_id );
@@ -222,19 +221,20 @@ foreach($data as $key=>$product){
 
                      $isotype = 'N/A';
                      $inventory = 'N/A';
-                     $application = "N/A";
+                     //$application = "N/A";
                      if(isset($product['isotype'])){
                             $isotype = $product['isotype'];
                      }
                      if(isset($product['current_stock'])){
                             $inventory = $product['current_stock'];
                      }                     
-                     
                      $last_modified = date('Y-m-d H:i:s');
 
                      print 'Catalog ID Updated: ' . $catalog_id . PHP_EOL;
                      //record_log_message('Catalog ID Updated: ' . $catalog_id);
-                     R::exec("UPDATE " . $products_table . " SET name = '".$name."', isotype = '".$isotype."', inventory = '" . $inventory . "' WHERE catalog_id = '" . $catalog_id . "'" ); 
+                     $sql_query = "UPDATE " . $products_table . " SET name = '".$name."', isotype = '".$isotype."', inventory = '" . $inventory . "', last_modified = '".$last_modified."' WHERE catalog_id = '" . $catalog_id . "'";
+
+                     R::exec($sql_query); 
 
                      
               }
