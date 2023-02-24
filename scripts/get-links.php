@@ -81,14 +81,14 @@ for($i = 1; $i <= $total_pages; $i++){
 
     $products = $cur_arr;
 
-        $filelocation = 'json-files/';
+        $filelocation = '../json-files/';
         $filename = $filelocation . 'page' . $i . '.json';
 
         $params_arr = array(
                 "filename"=>$filename,
                 "data"=>$products
             );
-        //create_json_file($params_arr);
+        create_json_file($params_arr);
 
         record_log_message('JSON file created : ' . $filename);
 
