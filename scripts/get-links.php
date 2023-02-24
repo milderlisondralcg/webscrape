@@ -1,18 +1,12 @@
 <?php
+
 /**
  * get-links.php 
  * Retrieve all the links from the main search results
  * and create a JSON file with all the links found on the current page
  * */
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-date_default_timezone_set("America/Los_Angeles");
-
-require 'vendor/autoload.php';
-require_once("spotlight.inc.php");
+require_once "../inc/config.php";
 
 // Setup DOM Crawler
 use Goutte\Client;
@@ -32,7 +26,7 @@ $products = [];
 $cur_arr = [];
 
 $error_log_file = create_log_file('get-urls');
-record_log_message(date("Y-m-d h:i:s A") . " Get URLs");
+record_log_message(date("Y-m-d h:i A") . " Get URLs");
 
 for($i = 1; $i <= $total_pages; $i++){
 
@@ -94,14 +88,14 @@ for($i = 1; $i <= $total_pages; $i++){
                 "filename"=>$filename,
                 "data"=>$products
             );
-        create_json_file($params_arr);
+        //create_json_file($params_arr);
 
         record_log_message('JSON file created : ' . $filename);
 
     unset($cur_arr);
 
 }
-record_log_message(date("Y-m-d h:i:s A") . " Biolegend Get URLs Completed");
+record_log_message(date("Y-m-d h:i A") . " Biolegend Get URLs Completed");
 
 
 

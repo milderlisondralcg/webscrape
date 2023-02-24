@@ -6,25 +6,20 @@
  * @author Milder Lisondra
  * */
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
-require("RedBean/rb.php");
-require_once("spotlight.inc.php");
+require_once "../inc/config.php";
 
 // Connect to db
 R::setup( 'mysql:host=localhost;dbname=cytek', 'root', '' );
 
 $error_log_file = create_log_file('save-links');
-record_log_message(date("Y-m-d h:i:s A") . " Save Links to database Started");
+record_log_message(date("Y-m-d h:i A") . " Save Links to database Started");
 
 // Files location
-$json_files_location = "json-files/";
-$json_files_processed = "json-files-processed/";
+$json_files_location = "../json-files/";
+$json_files_processed = "../json-files-processed/";
 
 // Products urls table
-$products_links = 'biolegendlinks';
+$products_links = LINKS;
 // Number of files to process
 $num_files_to_process = 290;
 if(isset($argv[1])){
@@ -39,7 +34,7 @@ foreach($files_list as $file){
 
     print 'Processing file: ' . $json_files_location . $file . PHP_EOL;
     record_log_message('Processing file ' . $file);
-    $file_data = file_get_contents('json-files/' . $file);
+    $file_data = file_get_contents('../json-files/' . $file);
 
     $json_data = json_decode($file_data);
 
@@ -67,4 +62,4 @@ foreach($files_list as $file){
 
 // Set all records to status of NULL
 R::exec( 'UPDATE ' . $products_links . ' SET `status` = NULL;' );
-record_log_message(date("Y-m-d h:i:s A") . " Save Links to database Completed");
+record_log_message(date("Y-m-d h:i A") . " Save Links to database Completed");

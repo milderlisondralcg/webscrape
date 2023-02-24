@@ -5,15 +5,7 @@
   * 
   * */
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-date_default_timezone_set("America/Los_Angeles");
-
-require 'vendor/autoload.php';
-require("RedBean/rb.php");
-require_once("spotlight.inc.php");
+require_once "../inc/config.php";
 
 // Library
 use Goutte\Client;
@@ -26,16 +18,16 @@ if(isset($argv[1])){
        $query_limit = $argv[1];
 }
 
-$links_table = 'biolegendlinks';
+$links_table = LINKS;
 
 print "Limit: " . $query_limit . PHP_EOL;
 // Get products
 $links = R::findAll($links_table, " WHERE status IS NULL LIMIT $query_limit");
 
 
-/*$error_log_file = create_log_file('get-link-details');
+$error_log_file = create_log_file('get-link-details');
 record_log_message("Number of links to process: " . $query_limit);
-record_log_message(date("Y-m-d h:i:s A") . " Get Links Details Started");*/
+record_log_message(date("Y-m-d h:i A") . " Get Links Details Started");
 
 // Iterate through result set of products
 // Retrieve product detail page
@@ -144,7 +136,7 @@ foreach($links as $link){
                      // Get current inventory
                      $nodex->filter('td > label > input')->each(function ($node2) {
                             global $temp_arr;
-                            print 'INVENTORY: '.$node2->attr('data-stock')  . PHP_EOL;
+                            // print 'INVENTORY: '.$node2->attr('data-stock')  . PHP_EOL;
                             $temp_arr['current_stock'] = $node2->attr('data-stock');
        
 
@@ -179,12 +171,9 @@ foreach($links as $link){
 
 global $data;
 
-$products_table = "biolegendproducts";
+$products_table = PRODUCTS;
 // Update products
 foreach($data as $key=>$product){ 
-
-
-print_r($product);
 
        // Get current product as object
        $catalog_id = $product['catalog_id']; 
@@ -193,7 +182,8 @@ print_r($product);
        unset($product['Product Citations']);
 
        $current_product = R::getRow( "SELECT * FROM " . $products_table . " WHERE catalog_id = " . $catalog_id );
-                 
+       print_r($current_product);
+
        try{
              // $current_product = R::findOne( "SELECT * FROM " . $products_table . " WHERE catalog_id = " . $catalog_id );
 
@@ -214,9 +204,7 @@ print_r($product);
                      $new_product->size = $product['size'];
                      $new_product->price = str_replace('$','', $product['price']);
                      $new_product->inventory = $product['current_stock'];
-                     //$hash = md5($product->clone . ' ' . $product->application . ' ' . $product->regulation . ' ' . $product->size . ' ' . $product->price);
                      $new_product->last_modified = date('Y-m-d H:i:s');
-                     //$product->hash = $hash;
                      R::store($new_product); 
                      print 'Catalog ID Created: ' . $catalog_id . PHP_EOL;
                      //record_log_message('Catalog ID Created: ' . $catalog_id);
@@ -225,9 +213,13 @@ print_r($product);
               }else{ 
 
                      print "Catalog ID exists" . PHP_EOL;
-                     //print $current_product["id"] . PHP_EOL;
-                     //print $current_product['catalog_id'] . PHP_EOL;
-                     $name = trim($current_product["name"]);
+                     // In the event that a product does not currently have a name associated with it
+                     if(isset($current_product["name"])){
+                            $name = trim($current_product["name"]);
+                     }else{
+                            $name = $product['name'];
+                     }
+
                      $isotype = 'N/A';
                      $inventory = 'N/A';
                      $application = "N/A";

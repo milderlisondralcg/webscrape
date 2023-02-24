@@ -1,14 +1,12 @@
  <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+/**
+ * get-inventory-only.php
+ * Retrieve inventory for each product
+ * @author Milder Lisondra
+ * */
 
-date_default_timezone_set("America/Los_Angeles");
-
-require 'vendor/autoload.php';
-require("RedBean/rb.php");
-require_once("spotlight.inc.php");
+require_once "../inc/config.php";
 
 // Library
 use Goutte\Client;
@@ -20,16 +18,15 @@ if(isset($argv[1])){
        $query_limit = $argv[1];
 }
 
-$links_table = 'biolegendlinks';
+$links_table = LINKS;
 
 print "Limit: " . $query_limit . PHP_EOL;
 // Get products
-//$links = R::findAll($links_table, " WHERE link != 'https://www.biolegend.com' AND status IS NULL LIMIT $query_limit");
 $links = R::findAll($links_table, " WHERE status IS NULL LIMIT $query_limit");
 
 $error_log_file = create_log_file('get-inventory-only');
 record_log_message("Number of links to process: " . $query_limit);
-record_log_message(date("Y-m-d h:i:s A") . " Get Inventory Only Started");
+record_log_message(date("Y-m-d h:i A") . " Get Inventory Only Started");
 
 // Iterate through result set of products
 // Retrieve product detail page
@@ -48,7 +45,6 @@ foreach($links as $link){
 foreach($links as $link){
        
        $link_to_fetch = $link->url;
-       //$link_to_fetch = 'https://www.biolegend.com/en-us/products/pe-dazzle-594-anti-human-cd117-c-kit-antibody-12165';
        $link_id = $link->id;
        print 'Fetching link ' . $link_to_fetch . PHP_EOL;
 
@@ -80,9 +76,7 @@ foreach($links as $link){
 
               // Get Product ID, Product Size, Price
               foreach($nodex->children() as $child){
-                     
-                     //print $child->nodeValue . PHP_EOL;
-                     
+                                          
                      if($counter < 4){
 
                             global $labels_arr;
@@ -103,7 +97,6 @@ foreach($links as $link){
                             global $temp_arr;
                             //print 'INVENTORY: '.$node2->attr('data-stock')  . PHP_EOL;
                             $temp_arr['current_stock'] = $node2->attr('data-stock');
-       
 
                      }); 
 
@@ -161,7 +154,6 @@ foreach($data as $key=>$product){
 foreach($data as $key=>$product){
 
        $catalog_id = $product['catalog_id'];
-       //$link_id = $product['link_id'];
        try{
               R::exec("UPDATE " . $links_table . " SET status = 'Done'  WHERE `catalog_id` = '" . $catalog_id . "'" );
        }catch (\Exception $e) {
@@ -171,4 +163,4 @@ foreach($data as $key=>$product){
 
 }
 
-record_log_message(date("Y-m-d h:i:s A") . " Get Inventory Only Completed");
+record_log_message(date("Y-m-d h:i A") . " Get Inventory Only Completed");
